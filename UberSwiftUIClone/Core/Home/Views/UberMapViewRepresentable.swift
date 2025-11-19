@@ -12,6 +12,7 @@ struct UberMapViewRepresentable: UIViewRepresentable {
 
     let mapView = MKMapView()
     let locationManager = LocationManager()
+    @Binding var mapState: MapViewState
     @EnvironmentObject var viewModel: LocationSearchViewModel
 
     func makeUIView(context: Context) -> MKMapView {
@@ -24,11 +25,21 @@ struct UberMapViewRepresentable: UIViewRepresentable {
     }
 
     func updateUIView(_ uiView: MKMapView, context: Context) {
-        if let coordinate = viewModel.selectedLocationCoordinate {
-            context.coordinator.addAndSelectAnnotation(
-                withCoordinate: coordinate)
-            context.coordinator.configurePolyline(
-                withDestensionCoordinate: coordinate)
+        print("DEBUG: Map state is \(mapState)")
+        switch mapState {
+        case .noInput:
+            context.coordinator.clearMapViewAndRecenterOnUserLocation()
+            break
+        case .searchingForLocation:
+            break
+        case .locationSelected:
+            if let coordinate = viewModel.selectedLocationCoordinate {
+                context.coordinator.addAndSelectAnnotation(
+                    withCoordinate: coordinate)
+                context.coordinator.configurePolyline(
+                    withDestensionCoordinate: coordinate)
+            }
+            break
         }
     }
 
@@ -52,7 +63,9 @@ extension UberMapViewRepresentable {
         }
 
         // MARK: - MKMapViewDelegate
-        func mapView(_ mapView: MKMapView, didUpdate userLocation: MKUserLocation) {
+        func mapView(
+            _ mapView: MKMapView, didUpdate userLocation: MKUserLocation
+        ) {
             self.userLocationCoordinate = userLocation.coordinate
             let region = MKCoordinateRegion(
                 center: CLLocationCoordinate2D(
@@ -60,12 +73,14 @@ extension UberMapViewRepresentable {
                     longitude: userLocation.coordinate.longitude),
                 span: MKCoordinateSpan(
                     latitudeDelta: 0.05, longitudeDelta: 0.05))
-            
+
             self.currentRegion = region
             parent.mapView.setRegion(region, animated: true)
         }
 
-        func mapView(_ mapView: MKMapView, rendererFor overlay: any MKOverlay) -> MKOverlayRenderer {
+        func mapView(_ mapView: MKMapView, rendererFor overlay: any MKOverlay)
+            -> MKOverlayRenderer
+        {
             let polyline = MKPolylineRenderer(overlay: overlay)
             polyline.strokeColor = .systemBlue
             polyline.lineWidth = 6
@@ -90,22 +105,26 @@ extension UberMapViewRepresentable {
 
         func zoomToFitAnnotations() {
             var zoomRect = MKMapRect.null
-            
+
             // Add user location if available
             if let userLocationCoordinate = userLocationCoordinate {
                 let userAnnotation = MKPointAnnotation()
                 userAnnotation.coordinate = userLocationCoordinate
                 parent.mapView.addAnnotation(userAnnotation)
             }
-            
+
             for annotation in parent.mapView.annotations {
                 let annotationPoint = MKMapPoint(annotation.coordinate)
-                let pointRect = MKMapRect(x: annotationPoint.x, y: annotationPoint.y, width: 0.1, height: 0.1)
+                let pointRect = MKMapRect(
+                    x: annotationPoint.x, y: annotationPoint.y, width: 0.1,
+                    height: 0.1)
                 zoomRect = zoomRect.union(pointRect)
             }
-            
-            let insets = UIEdgeInsets(top: 100, left: 100, bottom: 300, right: 100)
-            parent.mapView.setVisibleMapRect(zoomRect, edgePadding: insets, animated: true)
+
+            let insets = UIEdgeInsets(
+                top: 100, left: 100, bottom: 300, right: 100)
+            parent.mapView.setVisibleMapRect(
+                zoomRect, edgePadding: insets, animated: true)
         }
 
         func getDestinationRoute(
@@ -124,7 +143,9 @@ extension UberMapViewRepresentable {
             let directions = MKDirections(request: request)
             directions.calculate { response, error in
                 if let error = error {
-                    print("DEBUG: Failed to get directions: \(error.localizedDescription)")
+                    print(
+                        "DEBUG: Failed to get directions: \(error.localizedDescription)"
+                    )
                     return
                 }
 
@@ -139,20 +160,32 @@ extension UberMapViewRepresentable {
         func configurePolyline(
             withDestensionCoordinate coordinate: CLLocationCoordinate2D
         ) {
-            guard let userLocationCoordinate = self.userLocationCoordinate else {
+            guard let userLocationCoordinate = self.userLocationCoordinate
+            else {
                 print("DEBUG: User location not available")
                 return
             }
-            
+
             getDestinationRoute(
                 from: userLocationCoordinate,
                 to: coordinate
             ) { route in
                 self.parent.mapView.addOverlay(route.polyline)
-                self.zoomToFitAnnotations()
-                
+                //                self.zoomToFitAnnotations()
+
                 // Debug print to verify polyline is added
-                print("DEBUG: Polyline added with point count: \(route.polyline.pointCount)")
+                print(
+                    "DEBUG: Polyline added with point count: \(route.polyline.pointCount)"
+                )
+            }
+        }
+
+        func clearMapViewAndRecenterOnUserLocation() {
+            parent.mapView.removeAnnotations(parent.mapView.annotations)
+            parent.mapView.removeOverlays(parent.mapView.overlays)
+
+            if let currentRegion = currentRegion {
+                parent.mapView.setRegion(currentRegion, animated: true)
             }
         }
     }
