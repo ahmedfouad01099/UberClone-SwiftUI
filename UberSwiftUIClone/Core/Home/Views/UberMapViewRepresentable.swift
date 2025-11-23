@@ -171,8 +171,13 @@ extension UberMapViewRepresentable {
                 to: coordinate
             ) { route in
                 self.parent.mapView.addOverlay(route.polyline)
-                //                self.zoomToFitAnnotations()
+                let rect = self.parent.mapView.mapRectThatFits(
+                    route.polyline.boundingMapRect,
+                    edgePadding: .init(
+                        top: 64, left: 32, bottom: 500, right: 32))
 
+                self.parent.mapView.setRegion(
+                    MKCoordinateRegion(rect), animated: true)
                 // Debug print to verify polyline is added
                 print(
                     "DEBUG: Polyline added with point count: \(route.polyline.pointCount)"
