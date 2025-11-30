@@ -9,6 +9,7 @@ import SwiftUI
 
 struct RideRequestView: View {
     @State private var selectedRideType: RideType = .uberX
+    @EnvironmentObject var locationViewModel: LocationSearchViewModel
 
     var body: some View {
         VStack {
@@ -92,22 +93,28 @@ struct RideRequestView: View {
                                             Image(type.imageName)
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
-                                                .frame(width: 120, height: 120)
+                                                .frame(
+                                                    width: type
+                                                        == selectedRideType
+                                                        ? 130 : 120, height: 120
+                                                )
 
                                             VStack(
                                                 alignment: .leading, spacing: 4
                                             ) {
                                                 Text(type.description)
                                                     .font(.headline)
-//                                                    .foregroundColor(
-//                                                        type == selectedRideType
-//                                                            ? .white : .black)
 
-                                                Text("$22.04")
-                                                    .font(.headline)
-                                                    .foregroundColor(
-                                                        type == selectedRideType
-                                                            ? .white : .gray)
+                                                Text(
+                                                    locationViewModel
+                                                        .computeRidePrice(
+                                                            forType: type
+                                                        ).toCurrency()
+                                                )
+                                                .font(.headline)
+                                                .foregroundColor(
+                                                    type == selectedRideType
+                                                        ? .white : .gray)
                                             }
                                             .frame(
                                                 maxWidth: .infinity,
@@ -188,4 +195,6 @@ struct RideRequestView: View {
 
 #Preview {
     RideRequestView()
+        .environmentObject(LocationSearchViewModel())
+
 }
