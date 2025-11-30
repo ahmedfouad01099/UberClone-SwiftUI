@@ -8,7 +8,7 @@
 import Foundation
 import MapKit
 
-class LocationSearchViewModel: NSObject, ObservableObject {
+public class LocationSearchViewModel: NSObject, ObservableObject {
 
     // MARK: - Properties
 
@@ -23,7 +23,7 @@ class LocationSearchViewModel: NSObject, ObservableObject {
         }
     }
 
-    override init() {
+    public override init() {
         super.init()
         searchCompleter.delegate = self
         searchCompleter.queryFragment = queryFragment
@@ -60,7 +60,7 @@ class LocationSearchViewModel: NSObject, ObservableObject {
 // MARK: - MKLocalSearchCompleterDelegate
 
 extension LocationSearchViewModel: MKLocalSearchCompleterDelegate {
-    func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
+    public func completerDidUpdateResults(_ completer: MKLocalSearchCompleter) {
         self.results = completer.results
     }
 }
