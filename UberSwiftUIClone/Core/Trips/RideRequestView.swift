@@ -8,6 +8,8 @@
 import SwiftUI
 
 struct RideRequestView: View {
+    @State private var selectedRideType: RideType = .uberX
+
     var body: some View {
         VStack {
             ScrollView {
@@ -70,27 +72,42 @@ struct RideRequestView: View {
 
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 16) {
-                            ForEach(0..<5, id: \.self) { index in
+                            ForEach(RideType.allCases) { type in
                                 Rectangle()
-                                    .fill(Color.gray.opacity(0.2))
+                                    .fill(
+                                        Color(
+                                            type == selectedRideType
+                                                ? .systemBlue
+                                                : .systemGroupedBackground)
+                                    )
                                     .frame(width: 120, height: 180)
+
+                                    .scaleEffect(
+                                        type == selectedRideType ? 1.05 : 1
+                                    )
                                     .cornerRadius(8)
                                     .overlay(
-                                        VStack(spacing: 0) {
-                                            Image("uber-white")
+                                        VStack(alignment: .leading, spacing: 0)
+                                        {
+                                            Image(type.imageName)
                                                 .resizable()
                                                 .aspectRatio(contentMode: .fit)
-                                                .frame(width: 180, height: 120)
+                                                .frame(width: 120, height: 120)
 
                                             VStack(
                                                 alignment: .leading, spacing: 4
                                             ) {
-                                                Text("UberX")
+                                                Text(type.description)
                                                     .font(.headline)
-                                                    .foregroundColor(.black)
+//                                                    .foregroundColor(
+//                                                        type == selectedRideType
+//                                                            ? .white : .black)
+
                                                 Text("$22.04")
                                                     .font(.headline)
-                                                    .foregroundColor(.gray)
+                                                    .foregroundColor(
+                                                        type == selectedRideType
+                                                            ? .white : .gray)
                                             }
                                             .frame(
                                                 maxWidth: .infinity,
@@ -100,6 +117,15 @@ struct RideRequestView: View {
                                             .padding(.bottom, 8)  // Add bottom padding only
                                         }
                                     )
+                                    .foregroundColor(
+                                        type == selectedRideType
+                                            ? .white : .black
+                                    )
+                                    .onTapGesture {
+                                        withAnimation(.spring()) {
+                                            selectedRideType = type
+                                        }
+                                    }
                             }
                         }
                     }
