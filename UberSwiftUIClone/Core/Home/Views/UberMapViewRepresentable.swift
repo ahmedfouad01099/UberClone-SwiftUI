@@ -39,6 +39,8 @@ struct UberMapViewRepresentable: UIViewRepresentable {
                     withDestensionCoordinate: coordinate)
             }
             break
+        case .polylineAdded:
+            break
         }
     }
 
@@ -140,6 +142,8 @@ extension UberMapViewRepresentable {
                 to: coordinate
             ) { route in
                 self.parent.mapView.addOverlay(route.polyline)
+                self.parent.mapState = .polylineAdded
+                
                 let rect = self.parent.mapView.mapRectThatFits(
                     route.polyline.boundingMapRect,
                     edgePadding: .init(

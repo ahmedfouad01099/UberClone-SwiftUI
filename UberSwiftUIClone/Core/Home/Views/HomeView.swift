@@ -10,7 +10,7 @@ import SwiftUI
 struct HomeView: View {
     @State private var mapState = MapViewState.noInput
     @EnvironmentObject var locationViewModel: LocationSearchViewModel
-    
+
     var body: some View {
         ZStack(alignment: .bottom) {
             ZStack(alignment: .top) {
@@ -34,7 +34,7 @@ struct HomeView: View {
                     .padding(.top, 4)
             }
 
-            if mapState == .locationSelected {
+            if mapState == .locationSelected || mapState == .polylineAdded {
                 RideRequestView()
                     .transition(.move(edge: .bottom))
             }
