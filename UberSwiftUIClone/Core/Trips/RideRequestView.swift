@@ -39,13 +39,13 @@ struct RideRequestView: View {
 
                         Text("Mansura, Egypt")
                             .font(.headline)
-                            .foregroundColor(Color(.black))
+                            .foregroundColor(Color.theme.primaryTextColor)
 
                         if let location = locationViewModel.selectedUberLocation
                         {
                             Text(location.title)
                                 .font(.headline)
-                                .foregroundColor(Color(.systemGray2))
+                                .foregroundColor(Color(.systemGray))
                                 .padding(.bottom)
                         }
                     }
@@ -80,10 +80,10 @@ struct RideRequestView: View {
                             ForEach(RideType.allCases) { type in
                                 Rectangle()
                                     .fill(
-                                        Color(
-                                            type == selectedRideType
-                                                ? .systemBlue
-                                                : .systemGroupedBackground)
+                                        type == selectedRideType
+                                            ? Color(.systemBlue)
+                                            : Color.theme
+                                                .secondryBackgroundColor
                                     )
                                     .frame(width: 120, height: 180)
 
@@ -108,6 +108,9 @@ struct RideRequestView: View {
                                             ) {
                                                 Text(type.description)
                                                     .font(.headline)
+                                                    .foregroundColor(
+                                                        Color.theme
+                                                            .primaryTextColor)
 
                                                 Text(
                                                     locationViewModel
@@ -142,6 +145,7 @@ struct RideRequestView: View {
                     }
 
                 }
+                .background(Color.theme.backgroundColor)
                 .padding()
 
                 Button {
@@ -190,7 +194,7 @@ struct RideRequestView: View {
                 .cornerRadius(8)
                 .padding()
             }
-            .background(.white)
+            .background(Color.theme.backgroundColor)
             .frame(maxHeight: 500)
             .cornerRadius(12)
         }
