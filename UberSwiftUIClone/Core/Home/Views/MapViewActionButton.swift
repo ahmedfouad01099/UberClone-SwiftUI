@@ -40,7 +40,7 @@ struct MapViewActionButton: View {
             break
         case .locationSelected:
             mapState = .noInput
-            viewModel.selectedLocationCoordinate = nil
+            viewModel.selectedUberLocation = nil
         }
     }
 

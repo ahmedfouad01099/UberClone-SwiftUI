@@ -32,7 +32,7 @@ struct UberMapViewRepresentable: UIViewRepresentable {
         case .searchingForLocation:
             break
         case .locationSelected:
-            if let coordinate = viewModel.selectedLocationCoordinate {
+            if let coordinate = viewModel.selectedUberLocation?.coordinate {
                 context.coordinator.addAndSelectAnnotation(
                     withCoordinate: coordinate)
                 context.coordinator.configurePolyline(
@@ -126,36 +126,6 @@ extension UberMapViewRepresentable {
                 zoomRect, edgePadding: insets, animated: true)
         }
 
-        func getDestinationRoute(
-            from userLocation: CLLocationCoordinate2D,
-            to destination: CLLocationCoordinate2D,
-            completion: @escaping (MKRoute) -> Void
-        ) {
-            let userPlaceMark = MKPlacemark(coordinate: userLocation)
-            let destinationPlaceMark = MKPlacemark(coordinate: destination)
-
-            let request = MKDirections.Request()
-            request.source = MKMapItem(placemark: userPlaceMark)
-            request.destination = MKMapItem(placemark: destinationPlaceMark)
-            request.transportType = .automobile
-
-            let directions = MKDirections(request: request)
-            directions.calculate { response, error in
-                if let error = error {
-                    print(
-                        "DEBUG: Failed to get directions: \(error.localizedDescription)"
-                    )
-                    return
-                }
-
-                guard let route = response?.routes.first else {
-                    print("DEBUG: No routes found")
-                    return
-                }
-                completion(route)
-            }
-        }
-
         func configurePolyline(
             withDestensionCoordinate coordinate: CLLocationCoordinate2D
         ) {
@@ -165,7 +135,7 @@ extension UberMapViewRepresentable {
                 return
             }
 
-            getDestinationRoute(
+            parent.viewModel.getDestinationRoute(
                 from: userLocationCoordinate,
                 to: coordinate
             ) { route in

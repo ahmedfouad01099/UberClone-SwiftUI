@@ -36,25 +36,29 @@ struct RideRequestView: View {
                     .padding(.horizontal)
 
                     VStack(alignment: .leading) {
-                        Text("Current Loaction")
-                            .font(.headline)
-                            .foregroundColor(Color(.systemGray2))
-                            .padding(.bottom)
 
                         Text("Mansura, Egypt")
                             .font(.headline)
                             .foregroundColor(Color(.black))
+
+                        if let location = locationViewModel.selectedUberLocation
+                        {
+                            Text(location.title)
+                                .font(.headline)
+                                .foregroundColor(Color(.systemGray2))
+                                .padding(.bottom)
+                        }
                     }
 
                     Spacer()
 
                     VStack(alignment: .leading) {
-                        Text("02:55 PM")
+                        Text(locationViewModel.pickupTime ?? "")
                             .font(.headline)
                             .foregroundColor(Color(.systemGray3))
                             .padding(.bottom)
 
-                        Text("03:11 PM")
+                        Text(locationViewModel.dropOffTime ?? "")
                             .font(.headline)
                             .foregroundColor(Color(.systemGray3))
                     }
